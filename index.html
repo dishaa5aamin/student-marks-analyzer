@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>ResultIQ — Student Result Analyzer</title>
+<title>MarksIQ — Student Marks &amp; Grades Analyzer</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -230,7 +230,7 @@ footer strong{color:var(--text2)}
   <div class="header-inner">
     <div class="logo">
       <div class="logo-mark">📊</div>
-      <em>Result</em><span>IQ</span>
+      <em>Marks</em><span>IQ</span>
     </div>
     <div class="header-right">
       <span class="hbadge">Free · No signup</span>
@@ -240,9 +240,9 @@ footer strong{color:var(--text2)}
 </header>
 
 <div class="hero">
-  <div class="hero-eyebrow">Student Performance Platform</div>
+  <div class="hero-eyebrow">MarksIQ — Student Marks & Grades Platform</div>
   <h1>Your marks.<br/><span>Analyzed instantly.</span></h1>
-  <p>Enter marks, get your total, percentage, CGPA, smart insights, semester tracking, and a downloadable result card — all in seconds.</p>
+  <p>Enter marks, get your total, percentage, CGPA, smart insights, semester tracking, and a downloadable marks card — all in seconds.</p>
   <div class="hero-chips">
     <span class="chip green">✓ 10-pt CGPA</span>
     <span class="chip green">✓ 4-pt GPA</span>
@@ -331,7 +331,7 @@ footer strong{color:var(--text2)}
 
         <!-- ACTIONS -->
         <div class="action-row">
-          <button class="btn btn-sm" onclick="exportPDF()">⬇ Export PDF result card</button>
+          <button class="btn btn-sm" onclick="exportPDF()">⬇ Export PDF marks card</button>
           <button class="btn btn-sm btn-green" onclick="saveToTracker()">＋ Save to semester tracker</button>
           <button class="btn btn-sm" onclick="shareResult()">🔗 Copy share text</button>
         </div>
@@ -379,7 +379,7 @@ footer strong{color:var(--text2)}
 
 <footer>
   <div style="margin-bottom:8px">Made with ❤️ for students across India and beyond</div>
-  <strong>ResultIQ</strong> &nbsp;·&nbsp; Free forever &nbsp;·&nbsp; No data stored online &nbsp;·&nbsp; Works fully offline
+  <strong>MarksIQ</strong> &nbsp;·&nbsp; Free forever &nbsp;·&nbsp; No data stored online &nbsp;·&nbsp; Works fully offline
 </footer>
 
 <script>
@@ -588,7 +588,7 @@ function shareResult(){
   const r=lastResult;
   const text=`📊 Result Summary — ${r.name}\n${r.sem?'Class: '+r.sem+'\n':''}`+
     `Percentage: ${r.oPct.toFixed(2)}%\nGrade: ${r.oGI.g} | ${r.hasFail?'FAIL':'PASS'}`+
-    `${r.avgGPA&&r.sc!=='pct'?'\n'+(r.sc==='10'?'CGPA: '+r.avgGPA.toFixed(1)+'/10':'GPA: '+r.avgGPA.toFixed(2)+'/4.0'):''}\n\nGenerated with ResultIQ`;
+    `${r.avgGPA&&r.sc!=='pct'?'\n'+(r.sc==='10'?'CGPA: '+r.avgGPA.toFixed(1)+'/10':'GPA: '+r.avgGPA.toFixed(2)+'/4.0'):''}\n\nGenerated with MarksIQ`;
   navigator.clipboard.writeText(text).then(()=>alert('✅ Result text copied to clipboard!')).catch(()=>alert('Copy this:\n\n'+text));
 }
 
@@ -673,7 +673,7 @@ function exportPDF(){
   const gradeColor=r.oGI.cls==='gA'?'#2d8a50':r.oGI.cls==='gB'?'#1a5ca8':r.oGI.cls==='gC'?'#a07010':'#a03030';
   const rows=r.data.map((s,i)=>`<tr style="background:${i%2===0?'#f8f9ff':'#ffffff'}"><td style="padding:9px 12px;font-weight:500">${s.name}</td><td style="padding:9px 12px;text-align:center">${s.marks} / ${s.max}</td><td style="padding:9px 12px;text-align:center">${s.pct.toFixed(1)}%</td><td style="padding:9px 12px;text-align:center"><span style="padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;background:${s.cls==='gA'?'#e8f5e8':s.cls==='gB'?'#e8f0fa':s.cls==='gC'?'#fdf0d8':'#fae8e8'};color:${s.cls==='gA'?'#2d6a2d':s.cls==='gB'?'#1a4a8a':s.cls==='gC'?'#7a4a00':'#8a1a1a'}">${s.g}</span></td><td style="padding:9px 12px;text-align:center;color:${s.g==='F'?'#a03030':'#2d8a50'};font-weight:600">${s.g==='F'?'Fail':'Pass'}</td></tr>`).join('');
 
-  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Result Card — ${r.name}</title>
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Marks Card — ${r.name}</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
   <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -702,9 +702,9 @@ function exportPDF(){
   </style></head><body>
   <div class="page">
     <div class="header">
-      <div class="logo">Result<span>IQ</span></div>
+      <div class="logo">Marks<span>IQ</span></div>
       <h1>${r.name}</h1>
-      <div class="subtitle">Official Result Card · Generated ${r.date}</div>
+      <div class="subtitle">Official Marks Card · Generated ${r.date}</div>
       <div class="meta-row">
         ${r.id?'<span class="meta-chip">Roll No: '+r.id+'</span>':''}
         ${r.sem?'<span class="meta-chip">'+r.sem+'</span>':''}
@@ -721,7 +721,7 @@ function exportPDF(){
       </div>
       <div class="result-banner" style="background:${rm.c==='good'?'#e8f5e8':rm.c==='warn'?'#fdf0d8':'#fae8e8'};border-left:3px solid ${rm.c==='good'?'#2d8a50':rm.c==='warn'?'#a07010':'#a03030'};color:${rm.c==='good'?'#2d6a2d':rm.c==='warn'?'#7a4a00':'#8a1a1a'}">${rm.t}</div>
       <table><thead><tr><th>Subject</th><th>Marks</th><th>Percentage</th><th>Grade</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>
-      <div class="footer">ResultIQ Student Result Analyzer &nbsp;·&nbsp; This result card is for reference only. Official results issued by your institution are final. &nbsp;·&nbsp; No data stored online.</div>
+      <div class="footer">MarksIQ Student Marks & Grades Analyzer &nbsp;·&nbsp; This result card is for reference only. Official results issued by your institution are final. &nbsp;·&nbsp; No data stored online.</div>
     </div>
   </div>
   </body></html>`;
@@ -730,7 +730,7 @@ function exportPDF(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url;
-  a.download='ResultIQ_'+r.name.replace(/\s+/g,'_')+'_'+(r.sem||r.date).replace(/[\s,]/g,'')+'.html';
+  a.download='MarksIQ_'+r.name.replace(/\s+/g,'_')+'_'+(r.sem||r.date).replace(/[\s,]/g,'')+'.html';
   document.body.appendChild(a);a.click();document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url),3000);
 }
