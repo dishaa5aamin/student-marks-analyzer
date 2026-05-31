@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Student Result Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#f4f2ee;--surface:#ffffff;--surface2:#f9f8f6;--border:#e8e4dd;
+  --text:#1a1916;--text2:#6b6860;--text3:#a09d97;
+  --green:#2d6a2d;--green-bg:#e8f4e8;--green-mid:#4a9e4a;
+  --blue:#1a4a8a;--blue-bg:#e8f0fa;--blue-mid:#3a7acc;
+  --amber:#7a4a00;--amber-bg:#fdf0d8;--amber-mid:#c87800;
+  --red:#8a1a1a;--red-bg:#fae8e8;--red-mid:#cc3a3a;
+  --gray-bg:#f0ede8;--gray-text:#555;
+  --accent:#2d6a2d;--radius:10px;--radius-lg:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6}
+a{color:inherit;text-decoration:none}
+
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:0;z-index:100}
+.header-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:600;font-size:16px}
+.logo-icon{width:32px;height:32px;background:var(--text);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.header-badge{font-size:11px;background:var(--green-bg);color:var(--green);padding:3px 10px;border-radius:99px;font-weight:500}
+
+.hero{background:var(--surface);border-bottom:1px solid var(--border);padding:48px 24px 40px}
+.hero-inner{max-width:900px;margin:0 auto}
+.hero h1{font-size:clamp(26px,4vw,38px);font-weight:600;letter-spacing:-0.5px;margin-bottom:10px}
+.hero p{font-size:15px;color:var(--text2);max-width:520px;line-height:1.7}
+.hero-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{font-size:12px;padding:4px 12px;border-radius:99px;border:1px solid var(--border);color:var(--text2);background:var(--surface2)}
+
+.main{max-width:900px;margin:0 auto;padding:24px}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:24px;background:var(--surface);border-radius:var(--radius-lg) var(--radius-lg) 0 0;padding:0 16px;border:1px solid var(--border)}
+.tab{padding:14px 18px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s;white-space:nowrap;font-family:inherit}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--text);border-bottom:2px solid var(--text)}
+.tab-count{font-size:11px;background:var(--gray-bg);color:var(--gray-text);border-radius:99px;padding:1px 7px;margin-left:5px}
+
+.panel{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-lg) var(--radius-lg);padding:24px}
+
+.section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin:0 0 10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.grid3{display:grid;grid-template-columns:2fr 1fr 1fr 52px;gap:8px;align-items:center;margin-bottom:6px}
+.grid3.hdr span{font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+
+input,select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:14px;font-family:inherit;background:var(--surface2);color:var(--text);outline:none;transition:border-color .15s}
+input:focus,select:focus{border-color:#999;background:#fff}
+input::placeholder{color:var(--text3)}
+
+.btn{padding:9px 18px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text);font-family:inherit;transition:background .15s,border-color .15s}
+.btn:hover{background:var(--surface2);border-color:#bbb}
+.btn-primary{background:var(--text);color:#fff;border-color:var(--text);width:100%;padding:12px;font-size:15px;margin-top:12px}
+.btn-primary:hover{background:#333;border-color:#333}
+.btn-sm{font-size:12px;padding:6px 12px}
+.btn-green{border-color:var(--green-mid);color:var(--green);background:var(--green-bg)}
+.btn-green:hover{background:#d4ecd4}
+.action-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+.rmv-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--text3);cursor:pointer;padding:4px 8px;font-size:13px;transition:all .15s}
+.rmv-btn:hover{border-color:var(--red-mid);color:var(--red);background:var(--red-bg)}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:12px}
+.card-sm{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px}
+
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin:12px 0}
+.metric{background:var(--surface2);border-radius:var(--radius);padding:12px 14px;border:1px solid var(--border)}
+.metric-label{font-size:11px;color:var(--text2);margin-bottom:3px;font-weight:500}
+.metric-value{font-size:20px;font-weight:600;letter-spacing:-0.3px}
+
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600}
+.gA{background:var(--green-bg);color:var(--green)}.gB{background:var(--blue-bg);color:var(--blue)}
+.gC{background:var(--amber-bg);color:var(--amber)}.gD{background:#fdf0d8;color:#7a4500}.gF{background:var(--gray-bg);color:#555}
+.pass-tag{background:var(--green-bg);color:var(--green);padding:4px 12px;border-radius:99px;font-size:13px;font-weight:600}
+.fail-tag{background:var(--red-bg);color:var(--red);padding:4px 12px;border-radius:99px;font-size:13px;font-weight:600}
+
+.avatar{width:46px;height:46px;border-radius:50%;background:#e8f0fa;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#1a4a8a;flex-shrink:0;border:2px solid var(--border)}
+
+.ins{padding:8px 12px;border-radius:8px;margin:5px 0;font-size:13px;border-left:3px solid}
+.ins.good{border-color:var(--green-mid);background:var(--green-bg);color:var(--green)}
+.ins.warn{border-color:var(--amber-mid);background:var(--amber-bg);color:var(--amber)}
+.ins.danger{border-color:var(--red-mid);background:var(--red-bg);color:var(--red)}
+
+.srow{display:grid;grid-template-columns:2fr 1fr 1fr 60px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.srow:last-child{border-bottom:none}
+
+.pb-bg{background:var(--border);border-radius:99px;height:4px;margin-top:3px;overflow:hidden}
+.pb{height:4px;border-radius:99px}
+
+.hrow{display:flex;align-items:center;gap:10px;padding:10px 8px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:var(--radius);transition:background .12s}
+.hrow:hover{background:var(--surface2)}
+.hrow:last-child{border-bottom:none}
+
+.trend-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.trend-row:last-child{border-bottom:none}
+.sem-pill{font-size:11px;padding:2px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:99px;color:var(--text2);white-space:nowrap}
+.trend-up{color:var(--green);font-weight:600;font-size:12px}
+.trend-dn{color:var(--red);font-weight:600;font-size:12px}
+.trend-eq{color:var(--text3);font-size:12px}
+
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3)}
+.empty-icon{font-size:32px;margin-bottom:10px;opacity:.5}
+
+.divider{height:1px;background:var(--border);margin:20px 0}
+
+footer{text-align:center;padding:32px 24px;color:var(--text3);font-size:12px;border-top:1px solid var(--border);margin-top:24px}
+footer a{color:var(--text2);text-decoration:underline}
+
+@media(max-width:600px){
+  .grid2{grid-template-columns:1fr}
+  .grid3{grid-template-columns:1.5fr 1fr 1fr 44px}
+  .hero{padding:32px 16px 28px}
+  .main{padding:16px}
+  .panel{padding:16px}
+  .metric-grid{grid-template-columns:repeat(2,1fr)}
+  .srow{grid-template-columns:1.5fr 1fr 1fr 50px;font-size:12px}
+  .action-row{flex-direction:column}
+  .action-row .btn{width:100%}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      ResultAnalyzer
+    </div>
+    <span class="header-badge">Free &amp; No signup</span>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1>Student Result &amp; Marks Analyzer</h1>
+    <p>Enter your marks, instantly get your total, percentage, CGPA, grade, and smart performance insights — with semester tracking and PDF export.</p>
+    <div class="hero-chips">
+      <span class="chip">&#10003; 10-pt CGPA &amp; 4-pt GPA</span>
+      <span class="chip">&#10003; Subject-wise breakdown</span>
+      <span class="chip">&#10003; Semester progress tracker</span>
+      <span class="chip">&#10003; PDF export</span>
+      <span class="chip">&#10003; Works offline</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="tabs">
+    <button class="tab active" onclick="sw('entry')">&#9998; Enter marks</button>
+    <button class="tab" onclick="sw('trend')">&#8599; Progress <span class="tab-count" id="semCount">0</span></button>
+    <button class="tab" onclick="sw('history')">&#9711; History <span class="tab-count" id="histCount">0</span></button>
+  </div>
+
+  <div class="panel">
+
+    <!-- ENTRY TAB -->
+    <div id="tab-entry">
+      <p class="section-label">Student info</p>
+      <div class="grid2">
+        <input type="text" id="stuName" placeholder="Full name"/>
+        <input type="text" id="stuId" placeholder="Roll no. / Student ID"/>
+      </div>
+      <div class="grid2">
+        <input type="text" id="stuSem" placeholder="Semester / Class (e.g. Sem 3, 10th)"/>
+        <select id="scheme">
+          <option value="10">10-point CGPA (Indian university)</option>
+          <option value="4">4-point GPA (US system)</option>
+          <option value="pct">Percentage only</option>
+        </select>
+      </div>
+
+      <div class="divider"></div>
+      <p class="section-label">Subject marks</p>
+      <div class="grid3 hdr"><span>Subject</span><span>Obtained</span><span>Max</span><span></span></div>
+      <div id="srows"></div>
+      <button class="btn btn-sm" onclick="addRow()" style="margin-top:8px">+ Add subject</button>
+      <button class="btn btn-primary" onclick="analyze()">&#9656; Analyze result</button>
+
+      <div id="results" style="display:none;margin-top:24px">
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+            <div class="avatar" id="avEl">?</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:16px;font-weight:600" id="rn">—</div>
+              <div style="font-size:12px;color:var(--text2)" id="rm">—</div>
+            </div>
+            <div id="rpf"></div>
+          </div>
+          <div class="metric-grid" id="mGrid"></div>
+          <div id="insBox"></div>
+          <div class="action-row" style="margin-top:16px">
+            <button class="btn btn-sm" onclick="exportPDF()">&#8659; Export PDF result card</button>
+            <button class="btn btn-sm btn-green" onclick="saveToTracker()">&#8853; Save to progress tracker</button>
+          </div>
+        </div>
+
+        <p class="section-label" style="margin-top:20px">Subject-wise breakdown</p>
+        <div class="card-sm" style="padding:12px 16px">
+          <div class="grid3 hdr" style="margin-bottom:4px"><span>Subject</span><span>Marks</span><span>%</span><span>Grade</span></div>
+          <div id="sResults"></div>
+        </div>
+
+        <p class="section-label" style="margin-top:20px">Performance chart</p>
+        <div style="position:relative;width:100%;height:220px">
+          <canvas id="mc" role="img" aria-label="Subject marks bar chart">Subject marks chart.</canvas>
+        </div>
+        <div id="cLegend" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;font-size:12px;color:var(--text2)"></div>
+      </div>
+    </div>
+
+    <!-- PROGRESS TAB -->
+    <div id="tab-trend" style="display:none">
+      <p class="section-label">Semester-over-semester progress</p>
+      <div id="trendContent">
+        <div class="empty"><div class="empty-icon">&#8599;</div>Analyze and save a result to start tracking progress across semesters.</div>
+      </div>
+    </div>
+
+    <!-- HISTORY TAB -->
+    <div id="tab-history" style="display:none">
+      <p class="section-label">All analyzed results</p>
+      <div id="histList">
+        <div class="empty"><div class="empty-icon">&#9711;</div>No records yet. Analyze a result to see history here.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <strong>Student Result Analyzer</strong> &nbsp;&#183;&nbsp; Free, private, no data sent anywhere &nbsp;&#183;&nbsp; Works fully offline<br/>
+  <span style="margin-top:6px;display:block">Built for students, teachers &amp; parents across India and beyond.</span>
+</footer>
+
+<script>
+let subjects=[
+  {name:'Mathematics',marks:'',max:100},{name:'Physics',marks:'',max:100},
+  {name:'Chemistry',marks:'',max:100},{name:'English',marks:'',max:100},
+  {name:'Computer Science',marks:'',max:100}
+];
+let history=[];
+let tracker={};
+let chartInst=null;
+let lastResult=null;
+
+function ini(n){if(!n)return'?';return n.trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();}
+
+function grade(pct,sc){
+  if(sc==='10'){
+    if(pct>=90)return{g:'O',gpa:10,cls:'gA'};if(pct>=80)return{g:'A+',gpa:9,cls:'gA'};
+    if(pct>=70)return{g:'A',gpa:8,cls:'gA'};if(pct>=60)return{g:'B+',gpa:7,cls:'gB'};
+    if(pct>=50)return{g:'B',gpa:6,cls:'gB'};if(pct>=40)return{g:'C',gpa:5,cls:'gC'};
+    if(pct>=35)return{g:'D',gpa:4,cls:'gD'};return{g:'F',gpa:0,cls:'gF'};
+  }else if(sc==='4'){
+    if(pct>=93)return{g:'A',gpa:4.0,cls:'gA'};if(pct>=90)return{g:'A-',gpa:3.7,cls:'gA'};
+    if(pct>=87)return{g:'B+',gpa:3.3,cls:'gB'};if(pct>=83)return{g:'B',gpa:3.0,cls:'gB'};
+    if(pct>=80)return{g:'B-',gpa:2.7,cls:'gB'};if(pct>=70)return{g:'C',gpa:2.0,cls:'gC'};
+    if(pct>=60)return{g:'D',gpa:1.0,cls:'gD'};return{g:'F',gpa:0,cls:'gF'};
+  }else{
+    if(pct>=90)return{g:'A+',gpa:null,cls:'gA'};if(pct>=80)return{g:'A',gpa:null,cls:'gA'};
+    if(pct>=70)return{g:'B',gpa:null,cls:'gB'};if(pct>=60)return{g:'C',gpa:null,cls:'gC'};
+    if(pct>=50)return{g:'D',gpa:null,cls:'gD'};return{g:'F',gpa:null,cls:'gF'};
+  }
+}
+
+function remark(pct){
+  if(pct>=90)return{t:'Outstanding performance! Top of the class.',c:'good'};
+  if(pct>=80)return{t:'Excellent result — distinction level achieved.',c:'good'};
+  if(pct>=70)return{t:'Good performance. First class standing.',c:'good'};
+  if(pct>=60)return{t:'Decent result. Push a little more for first class.',c:'warn'};
+  if(pct>=50)return{t:'Passing marks secured. Consistent effort needed.',c:'warn'};
+  if(pct>=40)return{t:'Borderline pass. Focus on weaker subjects now.',c:'warn'};
+  return{t:'Below passing threshold. Improvement required across subjects.',c:'danger'};
+}
+
+function renderRows(){
+  const c=document.getElementById('srows');c.innerHTML='';
+  subjects.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='grid3';
+    d.innerHTML=`<input type="text" placeholder="Subject name" value="${s.name}" oninput="subjects[${i}].name=this.value"/>
+    <input type="number" min="0" placeholder="e.g. 78" value="${s.marks}" oninput="subjects[${i}].marks=this.value"/>
+    <input type="number" min="1" value="${s.max}" oninput="subjects[${i}].max=+this.value"/>
+    <button class="rmv-btn" onclick="removeRow(${i})" title="Remove">&#10005;</button>`;
+    c.appendChild(d);
+  });
+}
+function addRow(){subjects.push({name:'',marks:'',max:100});renderRows();}
+function removeRow(i){if(subjects.length>1){subjects.splice(i,1);renderRows();}}
+
+function analyze(){
+  const name=document.getElementById('stuName').value.trim()||'Student';
+  const id=document.getElementById('stuId').value.trim();
+  const sem=document.getElementById('stuSem').value.trim();
+  const sc=document.getElementById('scheme').value;
+  const filled=subjects.filter(s=>s.marks!==''&&!isNaN(+s.marks)&&+s.marks>=0);
+  if(!filled.length){alert('Please enter marks for at least one subject.');return;}
+
+  let tO=0,tM=0;
+  const data=filled.map(s=>{
+    const m=Math.min(+s.marks,+s.max||100),mx=+s.max||100,pct=(m/mx)*100;
+    const gi=grade(pct,sc);tO+=m;tM+=mx;
+    return{name:s.name||'Subject',marks:m,max:mx,pct,...gi};
+  });
+
+  const oPct=(tO/tM)*100;
+  const oGI=grade(oPct,sc);
+  const hasFail=data.some(s=>s.g==='F');
+  const avgGPA=sc!=='pct'?data.reduce((a,s)=>a+(s.gpa||0),0)/data.length:null;
+  const date=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+
+  lastResult={name,id,sem,sc,oPct,oGI,hasFail,data,tO,tM,avgGPA,date};
+
+  document.getElementById('avEl').textContent=ini(name);
+  document.getElementById('rn').textContent=name+(id?' ('+id+')':'');
+  document.getElementById('rm').textContent=[sem,date].filter(Boolean).join(' · ');
+  document.getElementById('rpf').innerHTML=hasFail?'<span class="fail-tag">&#10006; Fail</span>':'<span class="pass-tag">&#10004; Pass</span>';
+
+  let cgStr='';
+  if(sc==='10')cgStr=avgGPA.toFixed(1)+' / 10';
+  else if(sc==='4')cgStr=avgGPA.toFixed(2)+' / 4.0';
+
+  document.getElementById('mGrid').innerHTML=`
+    <div class="metric"><div class="metric-label">Total marks</div><div class="metric-value">${tO} / ${tM}</div></div>
+    <div class="metric"><div class="metric-label">Percentage</div><div class="metric-value">${oPct.toFixed(2)}%</div></div>
+    ${cgStr?'<div class="metric"><div class="metric-label">'+(sc==='10'?'CGPA':'GPA')+'</div><div class="metric-value">'+cgStr+'</div></div>':''}
+    <div class="metric"><div class="metric-label">Grade</div><div class="metric-value"><span class="badge '+oGI.cls+'">'+oGI.g+'</span></div></div>
+    <div class="metric"><div class="metric-label">Subjects passed</div><div class="metric-value">${data.filter(s=>s.g!=='F').length} / ${data.length}</div></div>`;
+
+  const rm=remark(oPct);
+  const weak=data.filter(s=>s.pct<60).sort((a,b)=>a.pct-b.pct).slice(0,2);
+  const strong=data.slice().sort((a,b)=>b.pct-a.pct)[0];
+  let ins='<div class="ins '+rm.c+'">'+rm.t+'</div>';
+  if(strong)ins+='<div class="ins good">Strongest: <strong>'+strong.name+'</strong> — '+strong.pct.toFixed(1)+'%</div>';
+  if(weak.length)ins+='<div class="ins warn">Needs attention: '+weak.map(s=>'<strong>'+s.name+'</strong> ('+s.pct.toFixed(1)+'%)').join(', ')+'</div>';
+  document.getElementById('insBox').innerHTML=ins;
+
+  document.getElementById('sResults').innerHTML=data.map(s=>`
+    <div class="srow">
+      <span style="font-weight:500">${s.name}</span>
+      <span>${s.marks}/${s.max}<div class="pb-bg"><div class="pb" style="width:${Math.min(s.pct,100).toFixed(1)}%;background:${s.cls==='gA'?'#4a9e4a':s.cls==='gB'?'#3a7acc':s.cls==='gC'?'#c87800':'#cc3a3a'}"></div></div></span>
+      <span>${s.pct.toFixed(1)}%</span>
+      <span><span class="badge ${s.cls}">${s.g}</span></span>
+    </div>`).join('');
+
+  const bc=data.map(s=>s.cls==='gA'?'#4a9e4a':s.cls==='gB'?'#3a7acc':s.cls==='gC'?'#c87800':s.cls==='gD'?'#cc6600':'#aaa');
+  if(chartInst)chartInst.destroy();
+  chartInst=new Chart(document.getElementById('mc'),{
+    type:'bar',
+    data:{labels:data.map(s=>s.name.length>10?s.name.slice(0,10)+'…':s.name),
+      datasets:[
+        {label:'Obtained',data:data.map(s=>s.marks),backgroundColor:bc,borderRadius:6,maxBarThickness:46},
+        {label:'Max marks',data:data.map(s=>s.max),backgroundColor:'rgba(0,0,0,.07)',borderRadius:6,maxBarThickness:46}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y}}},
+      scales:{x:{ticks:{color:'#888',font:{size:11}},grid:{display:false}},
+        y:{ticks:{color:'#888',font:{size:11}},grid:{color:'rgba(0,0,0,.06)'}}}}
+  });
+
+  document.getElementById('cLegend').innerHTML=
+    '<span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:#4a9e4a;display:inline-block"></span>Grade A / O</span>'+
+    '<span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:#3a7acc;display:inline-block"></span>Grade B</span>'+
+    '<span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:#c87800;display:inline-block"></span>Grade C</span>'+
+    '<span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:#cc3a3a;display:inline-block"></span>Grade D / F</span>'+
+    '<span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:2px;background:rgba(0,0,0,.12);display:inline-block"></span>Max marks</span>';
+
+  history.unshift(lastResult);
+  document.getElementById('histCount').textContent=history.length;
+  renderHistory();
+  document.getElementById('results').style.display='block';
+  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function saveToTracker(){
+  if(!lastResult){alert('Analyze a result first.');return;}
+  const key=lastResult.name+'__'+(lastResult.id||'noid');
+  if(!tracker[key])tracker[key]={name:lastResult.name,id:lastResult.id,sems:[]};
+  const semLabel=lastResult.sem||('Record '+(tracker[key].sems.length+1));
+  const already=tracker[key].sems.find(s=>s.sem===semLabel);
+  if(already){if(!confirm('"'+semLabel+'" already saved for this student. Overwrite?'))return;tracker[key].sems=tracker[key].sems.filter(s=>s.sem!==semLabel);}
+  tracker[key].sems.push({sem:semLabel,pct:lastResult.oPct,oGI:lastResult.oGI,sc:lastResult.sc,avgGPA:lastResult.avgGPA,date:lastResult.date,hasFail:lastResult.hasFail});
+  const total=Object.values(tracker).reduce((a,v)=>a+v.sems.length,0);
+  document.getElementById('semCount').textContent=total;
+  alert('Saved "'+semLabel+'" for '+lastResult.name+' to progress tracker.');
+}
+
+function renderTrend(){
+  const tc=document.getElementById('trendContent');
+  const entries=Object.values(tracker);
+  if(!entries.length){tc.innerHTML='<div class="empty"><div class="empty-icon">&#8599;</div>No tracked progress yet. Analyze and save a result to begin.</div>';return;}
+  let html='';
+  entries.forEach(e=>{
+    html+='<div class="card" style="margin-bottom:12px">';
+    html+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">';
+    html+='<div class="avatar" style="width:36px;height:36px;font-size:12px">'+ini(e.name)+'</div>';
+    html+='<div><div style="font-weight:600;font-size:14px">'+e.name+(e.id?' <span style="color:var(--text2);font-weight:400;font-size:12px">('+e.id+')</span>':'')+'</div>';
+    html+='<div style="font-size:12px;color:var(--text2)">'+e.sems.length+' semester'+(e.sems.length>1?'s':'')+' tracked</div></div></div>';
+    e.sems.forEach((s,i)=>{
+      const prev=i>0?e.sems[i-1]:null;
+      const delta=prev?+(s.pct-prev.pct).toFixed(1):null;
+      const trendHtml=delta===null?'':'<span class="'+(delta>0?'trend-up':delta<0?'trend-dn':'trend-eq')+'">'+(delta>0?'&#9650;':'&#9660;')+' '+Math.abs(delta)+'%</span>';
+      html+='<div class="trend-row"><span class="sem-pill">'+s.sem+'</span>';
+      html+='<span style="flex:1;font-size:13px">'+s.pct.toFixed(1)+'% <span class="badge '+s.oGI.cls+'" style="margin-left:4px">'+s.oGI.g+'</span></span>';
+      html+=trendHtml;
+      html+='<span class="'+(s.hasFail?'fail-tag':'pass-tag')+'" style="font-size:11px;padding:2px 8px">'+(s.hasFail?'Fail':'Pass')+'</span></div>';
+    });
+    if(e.sems.length>=2){
+      const cid='tc_'+e.name.replace(/[^a-z0-9]/gi,'_');
+      html+='<div style="position:relative;width:100%;height:130px;margin-top:12px"><canvas id="'+cid+'" role="img" aria-label="Semester trend for '+e.name+'">Trend chart.</canvas></div>';
+    }
+    html+='</div>';
+  });
+  tc.innerHTML=html;
+  entries.forEach(e=>{
+    if(e.sems.length>=2){
+      const cid='tc_'+e.name.replace(/[^a-z0-9]/gi,'_');
+      const el=document.getElementById(cid);if(!el)return;
+      new Chart(el,{type:'line',
+        data:{labels:e.sems.map(s=>s.sem),datasets:[{label:'%',data:e.sems.map(s=>+s.pct.toFixed(2)),borderColor:'#3a7acc',backgroundColor:'rgba(58,122,204,.08)',tension:.35,pointRadius:4,pointBackgroundColor:'#3a7acc',fill:true,borderWidth:2}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+          scales:{x:{ticks:{color:'#888',font:{size:11}},grid:{display:false}},
+            y:{min:0,max:100,ticks:{color:'#888',font:{size:11},callback:v=>v+'%'},grid:{color:'rgba(0,0,0,.06)'}}}}
+      });
+    }
+  });
+}
+
+function renderHistory(){
+  const c=document.getElementById('histList');
+  if(!history.length){c.innerHTML='<div class="empty"><div class="empty-icon">&#9711;</div>No records yet.</div>';return;}
+  c.innerHTML=history.map((h,i)=>
+    '<div class="hrow" onclick="loadRec('+i+')">'+
+    '<div class="avatar" style="width:36px;height:36px;font-size:12px">'+ini(h.name)+'</div>'+
+    '<div style="flex:1;min-width:0">'+
+    '<div style="font-weight:600;font-size:13px">'+h.name+(h.id?' <span style="color:var(--text2);font-weight:400">('+h.id+')</span>':'')+'</div>'+
+    '<div style="font-size:12px;color:var(--text2)">'+ [h.sem,h.date].filter(Boolean).join(' · ')+'</div></div>'+
+    '<div style="text-align:right;flex-shrink:0"><span class="badge '+h.oGI.cls+'">'+h.oGI.g+'</span><div style="font-size:12px;color:var(--text2);margin-top:2px">'+h.oPct.toFixed(1)+'%</div></div>'+
+    '<span class="'+(h.hasFail?'fail-tag':'pass-tag')+'" style="font-size:11px;padding:2px 8px;margin-left:8px">'+(h.hasFail?'Fail':'Pass')+'</span></div>'
+  ).join('');
+}
+
+function loadRec(i){
+  const h=history[i];
+  document.getElementById('stuName').value=h.name;
+  document.getElementById('stuId').value=h.id||'';
+  document.getElementById('stuSem').value=h.sem||'';
+  document.getElementById('scheme').value=h.sc;
+  subjects=h.data.map(s=>({name:s.name,marks:s.marks,max:s.max}));
+  renderRows();sw('entry');
+  setTimeout(()=>analyze(),80);
+}
+
+function exportPDF(){
+  if(!lastResult){alert('Analyze a result first.');return;}
+  const r=lastResult;
+  const rm=remark(r.oPct);
+  const rows=r.data.map(s=>'<tr><td>'+s.name+'</td><td style="text-align:center">'+s.marks+' / '+s.max+'</td><td style="text-align:center">'+s.pct.toFixed(1)+'%</td><td style="text-align:center">'+s.g+'</td><td style="text-align:center;color:'+(s.g==='F'?'#8a1a1a':'#2d6a2d')+'">'+( s.g==='F'?'Fail':'Pass')+'</td></tr>').join('');
+  const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Result — '+r.name+'</title>'+
+  '<style>@import url(\'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap\');'+
+  'body{font-family:"DM Sans",Arial,sans-serif;margin:0;padding:40px;color:#1a1916;font-size:13px;background:#f4f2ee}'+
+  '.card{background:#fff;border:1px solid #e8e4dd;border-radius:14px;padding:28px 32px;max-width:680px;margin:0 auto}'+
+  'h1{font-size:22px;font-weight:600;margin:0 0 4px;letter-spacing:-.3px}.sub{color:#888;font-size:12px;margin-bottom:20px}'+
+  '.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin:18px 0}'+
+  '.ib{background:#f9f8f6;border-radius:8px;padding:10px 13px;border:1px solid #e8e4dd}'+
+  '.il{font-size:11px;color:#888;margin-bottom:2px}.iv{font-size:17px;font-weight:600}'+
+  'table{width:100%;border-collapse:collapse;margin-top:4px}'+
+  'th{background:#f4f2ee;padding:8px 10px;text-align:left;font-size:12px;font-weight:600;color:#555}'+
+  'td{padding:7px 10px;font-size:13px;border-bottom:1px solid #eee}'+
+  '.rm{padding:9px 13px;border-radius:8px;font-size:13px;margin:16px 0;border-left:3px solid '+(rm.c==='good'?'#4a9e4a':rm.c==='warn'?'#c87800':'#cc3a3a')+';background:'+(rm.c==='good'?'#e8f4e8':rm.c==='warn'?'#fdf0d8':'#fae8e8')+';color:'+(rm.c==='good'?'#2d6a2d':rm.c==='warn'?'#7a4a00':'#8a1a1a')+'}'+
+  '.ft{margin-top:22px;font-size:11px;color:#bbb;border-top:1px solid #eee;padding-top:12px}'+
+  '</style></head><body><div class="card">'+
+  '<h1>Student Result Card</h1><div class="sub">Generated on '+r.date+' &nbsp;|&nbsp; ResultAnalyzer</div>'+
+  '<table style="width:auto;border:none;margin:0"><tr><td style="padding:3px 14px 3px 0;color:#666;font-weight:500;border:none">Name</td><td style="padding:3px 0;border:none"><strong>'+r.name+'</strong>'+(r.id?' &nbsp;<span style="color:#888">('+r.id+')</span>':'')+'</td></tr>'+
+  (r.sem?'<tr><td style="padding:3px 14px 3px 0;color:#666;font-weight:500;border:none">Class / Semester</td><td style="padding:3px 0;border:none">'+r.sem+'</td></tr>':'')+
+  '</table>'+
+  '<div class="info-grid">'+
+  '<div class="ib"><div class="il">Total marks</div><div class="iv">'+r.tO+' / '+r.tM+'</div></div>'+
+  '<div class="ib"><div class="il">Percentage</div><div class="iv">'+r.oPct.toFixed(2)+'%</div></div>'+
+  (r.avgGPA&&r.sc!=='pct'?'<div class="ib"><div class="il">'+(r.sc==='10'?'CGPA':'GPA')+'</div><div class="iv">'+(r.sc==='10'?r.avgGPA.toFixed(1)+' / 10':r.avgGPA.toFixed(2)+' / 4.0')+'</div></div>':'')+
+  '<div class="ib"><div class="il">Overall grade</div><div class="iv">'+r.oGI.g+'</div></div>'+
+  '<div class="ib"><div class="il">Result</div><div class="iv" style="color:'+(r.hasFail?'#8a1a1a':'#2d6a2d')+'">'+(r.hasFail?'FAIL':'PASS')+'</div></div>'+
+  '</div>'+
+  '<div class="rm">'+rm.t+'</div>'+
+  '<table><thead><tr><th>Subject</th><th>Marks</th><th>Percentage</th><th>Grade</th><th>Status</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+  '<div class="ft">This result card was generated automatically by Student Result Analyzer &nbsp;|&nbsp; Private &amp; secure — no data is stored online.</div>'+
+  '</div></body></html>';
+
+  const blob=new Blob([html],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='Result_'+r.name.replace(/\s+/g,'_')+'_'+(r.sem||r.date).replace(/[\s,]/g,'')+'.html';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),3000);
+}
+
+function sw(t){
+  ['entry','trend','history'].forEach(id=>{
+    document.getElementById('tab-'+id).style.display=id===t?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i)=>{
+    el.classList.toggle('active',['entry','trend','history'][i]===t);
+  });
+  if(t==='trend')renderTrend();
+  if(t==='history')renderHistory();
+}
+
+renderRows();
+</script>
+</body>
+</html>
